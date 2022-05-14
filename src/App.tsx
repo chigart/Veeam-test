@@ -2,14 +2,16 @@ import React, { useEffect, useState } from 'react';
 import styles from './App.module.scss';
 import axios from 'axios';
 import getParamsForResize from './lib/getParamsForResize';
-import { clearLabelsArray, getLabelsArray } from './lib/localStorage';
+import { clearLabelsArray, getLabelsArray, saveLabelsArray } from './lib/localStorage';
 import { getRelativePosition } from './lib/getRelativePosition';
 import { inputBarHeight } from './lib/constants';
-import { Params } from './types';
+import { Params, Label } from './types';
+import { deleteLabel } from './lib/localStorage';
 
 const App: React.FC = (): JSX.Element => {
   const [imageParams, setImageParams] = useState<Params>();
-  const [labels, setLabels] = useState<Params[]>();
+  const [labels, setLabels] = useState<Label[]>();
+  const [labelText, setLabelText] = useState('');
 
   const onChangeHandler = (event: React.ChangeEvent<HTMLInputElement>): void => {
     const files = event.target.files;
@@ -31,10 +33,15 @@ const App: React.FC = (): JSX.Element => {
   }
 
   const onClickHandler = (event: React.MouseEvent<HTMLImageElement>): void => {
-    const array: Params[] = getLabelsArray();
+    const array: Label[] = getLabelsArray();
     setLabels(array);
-    array.push(getRelativePosition({ width: event.clientX, height: event.clientY }, imageParams));
-    localStorage.setItem('labels', JSON.stringify(array));
+    array.push(getRelativePosition({ x: event.clientX, y: event.clientY, text: labelText }, imageParams));
+    saveLabelsArray(array);
+  }
+
+  const onLabelClick = (index: number): void => {
+    deleteLabel(index);
+    setLabels(getLabelsArray());
   }
 
   useEffect(() => {
@@ -59,6 +66,15 @@ const App: React.FC = (): JSX.Element => {
             Delete image
           </button>
         }
+        <h5>
+          Click on image to create label
+        </h5>
+        <input
+          type='text'
+          placeholder='type your label'
+          value={labelText}
+          onChange={(e) => setLabelText(e.target.value)}
+        />
       </div>
       <div className={styles.wrapper}>
         { imageParams &&
@@ -69,18 +85,19 @@ const App: React.FC = (): JSX.Element => {
           />
         }
 
-        { labels?.map(({ width, height }, index) => (
+        { labels?.map(({ x, y, text }, index) => (
           <div
             key={index}
             className={styles.label}
+            onClick={() => onLabelClick(index)}
             style={{
-              top: `${height}%`,
-              left: `${width}%`,
+              top: `${y}%`,
+              left: `${x}%`,
               zIndex: index + 1,
               backgroundColor: `rgb(${index * 10 + 100}, ${200 - index * 10}, 255)`
             }}
           >
-            'Label'
+            { text || 'Label' }
           </div>
         ))
         }
