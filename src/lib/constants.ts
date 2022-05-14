@@ -1,1 +1,1 @@
-export const searchBarHeight = 100;
+export const inputBarHeight = 100;

@@ -4,6 +4,8 @@ import axios from 'axios';
 import getParamsForResize from './lib/getParamsForResize';
 import { Params } from './types/globals';
 import { clearArray, getArray } from './lib/localStorage';
+import { getRelativePosition } from './lib/getRelativePosition';
+import { inputBarHeight } from './lib/constants';
 
 const App: React.FC = (): JSX.Element => {
   const [imageParams, setImageParams] = useState<Params>();
@@ -23,7 +25,9 @@ const App: React.FC = (): JSX.Element => {
   const onClickHandler = (event: React.MouseEvent<HTMLImageElement>): void => {
     const array: Params[] = getArray() || [];
     setLabels(array);
-    array.push({ width: event.clientX, height: event.clientY})
+    if (imageParams) {
+      array.push(getRelativePosition({ width: event.clientX, height: event.clientY }, imageParams));
+    }
     localStorage.setItem('labels', JSON.stringify(array));
   }
 
@@ -45,9 +49,7 @@ const App: React.FC = (): JSX.Element => {
     axios.get("http://localhost:5000/info").then((res) => {
       setImageParams(res.data);
     });
-
     setLabels(getArray());
-
   }, []);
 
   if (typeof window !== 'undefined' && imageParams) {
@@ -56,7 +58,7 @@ const App: React.FC = (): JSX.Element => {
 
   return (
     <div className={styles.container}>
-      <div className={styles.input}>
+      <div className={styles.input} style={{ height: inputBarHeight }}>
         { !imageParams ?
           <input type="file" name="file" onChange={onChangeHandler}/> :
           <button type='button' onClick={onDeleteHandler}>
@@ -64,7 +66,7 @@ const App: React.FC = (): JSX.Element => {
           </button>
         }
       </div>
-      <span>
+      <div className={styles.wrapper}>
         { imageParams &&
           <img
             src='/uploadedFileResized.jpg'
@@ -72,17 +74,18 @@ const App: React.FC = (): JSX.Element => {
             onClick={onClickHandler}
           />
         }
-      </span>
-      { labels?.map(({ width, height }, index) => (
-        <div
-          key={index}
-          className={styles.label}
-          style={{ top: height, left: width, zIndex: index + 1, backgroundColor: `rgb(${index * 10 + 100}, 0, 0)` }}
-        >
-          'Label'
-        </div>
-      ))
-      }
+
+        { labels?.map(({ width, height }, index) => (
+          <div
+            key={index}
+            className={styles.label}
+            style={{ top: `${height}%`, left: `${width}%`, zIndex: index + 1, backgroundColor: `rgb(${index * 10 + 100}, 0, 0)` }}
+          >
+            'Label'
+          </div>
+        ))
+        }
+      </div>
     </div>
   );
 }

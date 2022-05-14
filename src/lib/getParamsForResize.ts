@@ -1,9 +1,10 @@
 import { Params } from '../types/globals';
+import { inputBarHeight } from './constants';
 
 const getParamsForResize = (dimensions: Params) => {
   const windowParams = {
     width: window.innerWidth,
-    height: window.innerHeight - 100
+    height: window.innerHeight - inputBarHeight
   };
 
   const aspectRatio = dimensions.width / dimensions.height;
