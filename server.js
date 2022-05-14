@@ -38,12 +38,6 @@ app.get('/info', function (req, res) {
 })
 
 app.post('/upload', upload.single('file'), function (req, res) {
-	// if (fs.existsSync(uploadedFileResized)) {
-	// 	fs.unlinkSync(uploadedFileResized);
-	// }
-	// if (fs.existsSync(uploadedFile)) {
-	// 	sharp(uploadedFile).resize(req.body.width, req.body.height).toFile('public/uploadedFileResized.jpg');
-	// }
 	const dimensions = sizeOf(uploadedFile);
 	res.send({ width: dimensions.width, height: dimensions.height });
 })

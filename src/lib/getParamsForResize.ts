@@ -1,16 +1,16 @@
-import { Params } from '../types/globals';
-import { inputBarHeight } from './constants';
+import { Params } from '../types';
+import { defaultImageSize, inputBarHeight } from './constants';
 
-const getParamsForResize = (dimensions: Params) => {
+const getParamsForResize = (imageParams: Params = defaultImageSize) => {
   const windowParams = {
     width: window.innerWidth,
     height: window.innerHeight - inputBarHeight
   };
-
-  const aspectRatio = dimensions.width / dimensions.height;
+  const aspectRatio = imageParams.width / imageParams.height;
   let width, height;
+  
   if (aspectRatio >= 1) {
-    width = dimensions.width >= windowParams.width ? windowParams.width : dimensions.width;
+    width = (imageParams.width >= windowParams.width) ? windowParams.width : imageParams.width;
     height = Math.round(width / aspectRatio);
     if (height > windowParams.height) {
       height = windowParams.height;
@@ -18,10 +18,9 @@ const getParamsForResize = (dimensions: Params) => {
     }
   }
   else {
-    height = dimensions.height >= windowParams.height ? windowParams.height : dimensions.height;
+    height = (imageParams.height >= windowParams.height) ? windowParams.height : imageParams.height;
     width = Math.round(height * aspectRatio);
-    if (width > windowParams.width)
-    {
+    if (width > windowParams.width) {
       width = windowParams.width;
       height = Math.round(windowParams.width / aspectRatio);
     }

@@ -1,9 +1,9 @@
-import { Params } from '../types/globals';
+import { Params } from '../types';
 
-export const getArray = (): Params[] => {
+export const getLabelsArray = (): Params[] => {
   return localStorage.getItem('labels') ? JSON.parse(localStorage.getItem('labels') || '') : [];
 }
 
-export const clearArray = (): void => {
+export const clearLabelsArray = (): void => {
   localStorage.removeItem('labels');
 }
