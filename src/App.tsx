@@ -7,6 +7,7 @@ import { getRelativePosition } from './lib/getRelativePosition';
 import { inputBarHeight } from './lib/constants';
 import { Params, Label } from './types';
 import { deleteLabel } from './lib/localStorage';
+import Labels from './components/Labels';
 
 const App: React.FC = (): JSX.Element => {
   const [imageParams, setImageParams] = useState<Params>();
@@ -86,22 +87,7 @@ const App: React.FC = (): JSX.Element => {
           />
         }
 
-        { labels?.map(({ x, y, text }, index) => (
-          <div
-            key={index}
-            className={styles.label}
-            onClick={() => onLabelClick(index)}
-            style={{
-              top: `${y}%`,
-              left: `${x}%`,
-              zIndex: index + 1,
-              backgroundColor: `rgb(${index * 10 + 100}, ${200 - index * 10}, 255)`
-            }}
-          >
-            { text || 'Label' }
-          </div>
-        ))
-        }
+        <Labels labels={labels} onLabelClick={onLabelClick}/>
       </div>
     </div>
   );
