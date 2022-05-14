@@ -67,7 +67,7 @@ const App: React.FC = (): JSX.Element => {
           </button>
         }
         <h5>
-          Click on image to create label
+          Max size 1MB / Type your text and click
         </h5>
         <input
           type='text'
@@ -82,6 +82,7 @@ const App: React.FC = (): JSX.Element => {
             src='/uploadedFileResized.jpg'
             alt='uploaded by user'
             onClick={onClickHandler}
+						onError={resizeImage}
           />
         }
 
