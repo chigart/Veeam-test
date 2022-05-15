@@ -14,12 +14,12 @@ const App: React.FC = (): JSX.Element => {
   const [labels, setLabels] = useState<Label[]>();
   const [labelText, setLabelText] = useState('');
 
-  const onChangeHandler = (event: React.ChangeEvent<HTMLInputElement>): void => {
+  const onChangeHandler = async (event: React.ChangeEvent<HTMLInputElement>): Promise<void> => {
     const files = event.target.files;
     if (files && files.length > 0) {
       const data = new FormData();
       data.append('file', files[0]);
-      axios.post("http://localhost:5000/upload", data).then((res) => {
+      await axios.post("http://localhost:5000/upload", data).then((res) => {
         axios.post("http://localhost:5000/resize", getParamsForResize(res.data));
       });
     }
@@ -45,18 +45,29 @@ const App: React.FC = (): JSX.Element => {
     setLabels(getLabelsArray());
   }
 
+  const resizeImage = async () => {
+    await axios.post("http://localhost:5000/resize", getParamsForResize(imageParams));
+  }
+
   useEffect(() => {
-    axios.get("http://localhost:5000/info").then((res) => setImageParams(res.data));
+    if (typeof window !== 'undefined' && imageParams) {
+      window.addEventListener('resize', resizeImage)
+    }
+
+    return function cleanup() {
+      window.removeEventListener('resize', resizeImage)
+    }
+  })
+
+  useEffect(() => {
+    axios.get("http://localhost:5000/info").then((res) => {
+      setImageParams(res.data);
+      if (res.data) {
+        axios.post("http://localhost:5000/resize", getParamsForResize(res.data));
+      }
+    });
     setLabels(getLabelsArray());
   }, []);
-
-  const resizeImage = () => {
-    axios.post("http://localhost:5000/resize", getParamsForResize(imageParams));
-  }
-
-  if (typeof window !== 'undefined' && imageParams) {
-    window.onresize = resizeImage;
-  }
 
   return (
     <div className={styles.container}>
@@ -83,7 +94,7 @@ const App: React.FC = (): JSX.Element => {
             src='/uploadedFileResized.jpg'
             alt='uploaded by user'
             onClick={onClickHandler}
-						onError={resizeImage}
+            onError={resizeImage}
           />
         }
 

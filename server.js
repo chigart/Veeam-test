@@ -53,10 +53,12 @@ app.delete('/delete', function (req, res) {
 })
 
 app.post('/resize', function (req, res) {
-	if (fs.existsSync(uploadedFileResized)) {
-		fs.unlinkSync(uploadedFileResized);
+	let performResize = true;
+	if (fs.existsSync(uploadedFileResized) && fs.statSync(uploadedFileResized).size !== 0) {
+		const dimensions = sizeOf(uploadedFileResized);
+		performResize = (dimensions.width !== req.body.width || dimensions.height !== req.body.height);
 	}
-	if (fs.existsSync(uploadedFile)) {
+	if (fs.existsSync(uploadedFile) && performResize) {
 		sharp(uploadedFile).resize(req.body.width, req.body.height).toFile('public/uploadedFileResized.jpg');
 	}
 	res.send('Preview created');
